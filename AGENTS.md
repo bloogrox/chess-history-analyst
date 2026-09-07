@@ -1,0 +1,3 @@
+- activation: run `bun scripts/map.ts` to get compact map of the project
+- always use bun, bunx instead of node, npm, npx
+- after edits run `bun run build`

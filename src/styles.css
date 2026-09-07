@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #f7f3eb;
+  --color-paper-2: #efe9dc;
+  --color-card: #fdfbf6;
+  --color-line: #d8d0c3;
+  --color-ink: #1f1915;
+  --color-ink-2: #5c534d;
+  --color-ink-3: #877e77;
+  --color-ochre: #915200;
+  --color-ochre-tint: #f5e1c8;
+  --color-win: #439458;
+  --color-loss: #bd6254;
+  --color-square-light: #eedbbd;
+  --color-square-dark: #b28056;
+
+  --font-sans: 'Golos Text', system-ui, sans-serif;
+  --font-serif: 'Old Standard TT', Georgia, serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+  --font-chess: 'Noto Sans Symbols 2', 'Apple Symbols', 'Segoe UI Symbol', sans-serif;
+}
+
+@layer base {
+  /* Базовый размер шрифта — на body, а не на html: rem-шкала Tailwind
+     должна остаться при 16px, иначе text-sm даёт 13.1px вместо 14, а h-14 — 52.5px вместо 56 */
+  html {
+    background: var(--color-paper);
+    color: var(--color-ink);
+  }
+  body {
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  a {
+    color: var(--color-ochre);
+  }
+  a:hover {
+    color: var(--color-ink);
+    text-decoration: underline;
+  }
+}
+
+/* Моно-лейбл: «НЕДАВНИЕ», «ВЫ», «БИБЛИОТЕКА» — повторяется во всех макетах */
+@utility label {
+  font-family: var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-ink-3);
+}

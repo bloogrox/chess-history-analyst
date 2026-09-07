@@ -1,0 +1,26 @@
+{
+  "name": "chess-agent",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "bun run build.ts",
+    "test": "bun test",
+    "check": "bunx tsc --noEmit"
+  },
+  "dependencies": {
+    "@preact/signals": "^2.11.2",
+    "chess.js": "^1.4.0",
+    "idb": "^8.0.3",
+    "marked": "^18.0.11",
+    "preact": "^10.29.8",
+    "tailwindcss": "^4.3.3",
+    "zod": "^4.5.4"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.1",
+    "bun-plugin-tailwind": "^0.1.2",
+    "fake-indexeddb": "^6.2.5",
+    "preact-render-to-string": "^6.7.0",
+    "typescript": "^7.0.2"
+  }
+}
