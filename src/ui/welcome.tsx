@@ -1,4 +1,3 @@
-import { getSetting } from '../db/settings.ts'
 import { ImportFlow } from './import-flow.tsx'
 import { Logo } from './logo.tsx'
 import { strings } from './strings.ts'
@@ -32,16 +31,6 @@ function DecorBoard() {
 }
 
 export function Welcome() {
-  // Страница экспорта на Lichess существует только для конкретного ника, общей нет
-  const exportUrl = (name: string) => `https://lichess.org/@/${encodeURIComponent(name)}/download`
-  function openExport(e: Event) {
-    const known = getSetting('userName')
-    if (known) return
-    e.preventDefault()
-    const name = prompt(s.askNick)?.trim()
-    if (name) window.open(exportUrl(name), '_blank', 'noreferrer')
-  }
-
   return (
     <div class="relative min-h-screen overflow-hidden bg-paper">
       <DecorBoard />
@@ -61,29 +50,6 @@ export function Welcome() {
           <div class="mt-2">
             <ImportFlow />
           </div>
-
-          <a
-            href={exportUrl(getSetting('userName') ?? '')}
-            target="_blank"
-            rel="noreferrer"
-            onClick={openExport}
-            class="flex w-fit items-center gap-1.5 text-[13px] font-medium"
-          >
-            <span>{s.howTo}</span>
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 16 16"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M3 8h10M9 4l4 4-4 4" />
-            </svg>
-          </a>
 
           <div class="flex max-w-[560px] items-start gap-2 text-[13px] leading-normal text-ink-2">
             <svg
