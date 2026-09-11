@@ -10,6 +10,7 @@
         "idb": "^8.0.3",
         "marked": "^18.0.11",
         "preact": "^10.29.8",
+        "stockfish": "18.0.8",
         "tailwindcss": "^4.3.3",
         "zod": "^4.5.4",
       },
@@ -112,6 +113,8 @@
     "preact": ["preact@10.29.8", "", { "peerDependencies": { "preact-render-to-string": ">=5" }, "optionalPeers": ["preact-render-to-string"] }, "sha512-ej2aVZ+vZ8WO7tvlQWRM9N63A0KzF9q4mWJfDUHgYaIofWY9hu74QdnQrjoPMmZi2/nZ5gN0bJCQF49xQqx09Q=="],
 
     "preact-render-to-string": ["preact-render-to-string@6.7.0", "", { "peerDependencies": { "preact": ">=10 || >= 11.0.0-0" } }, "sha512-Z4WR8fmLMRpdYqJ9i7vrlXSsSrxVJydwrkEXHapexfARbWfGb7vGcnvNQnIzN0cXciMVOlz/XLoiMCi9gUsy9Q=="],
+
+    "stockfish": ["stockfish@18.0.8", "", { "bin": { "stockfish": "scripts/cli.js" } }, "sha512-z+f2UMPXLylDBGjv9e9zU8QulY7hUl8MYHesLRrdddewlOXjJrUSmtNmbtID1/F72EPhq0CCkCNxgWS5MQVWtQ=="],
 
     "tailwindcss": ["tailwindcss@4.3.3", "", {}, "sha512-gOhV3P7ufE62QDGg1zVaTgCR+EtPv92k2nIhVcVKcLmxT1sUBsQGhnZj175j+MqRt4zLF7ic+sCYjfhxMxj7YQ=="],
 
