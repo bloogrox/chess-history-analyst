@@ -9,6 +9,7 @@ import {
   stopStreaming,
   streaming,
 } from '../agent/loop.ts'
+import { AgentStatusView } from './agent-status.tsx'
 import { AnalysisStatus } from './analysis-status.tsx'
 import { Composer } from './composer.tsx'
 import { ImportModal } from './import-modal.tsx'
@@ -124,9 +125,7 @@ export function Chat() {
               />
             )}
             <MessageList messages={list} />
-            {streaming.value && !textOf(list.at(-1)) && (
-              <div class="label text-[11px]">{s.thinking}</div>
-            )}
+            {streaming.value && !textOf(list.at(-1)) && <AgentStatusView />}
             {chatError.value && (
               <div class="flex items-center gap-3 rounded-md border border-loss/40 bg-card px-4 py-3 text-[13px]">
                 <span class="text-loss">{chatError.value}</span>

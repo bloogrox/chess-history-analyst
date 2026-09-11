@@ -95,12 +95,14 @@ export async function* chatStream({
   messages,
   tools,
   signal,
+  onKeepalive,
 }: {
   key: string
   model: string
   messages: ApiMessage[]
   tools?: ToolSpec[]
   signal?: AbortSignal
+  onKeepalive?: () => void
 }): AsyncGenerator<StreamEvent> {
   const response = await request(`${API}/chat/completions`, {
     method: 'POST',
@@ -120,7 +122,7 @@ export async function* chatStream({
   const pending = new Map<number, { id: string; name: string; args: string }>()
   let finishReason: string | null = null
 
-  for await (const chunk of sseJson<Chunk>(response.body)) {
+  for await (const chunk of sseJson<Chunk>(response.body, { onKeepalive })) {
     // не ждём, пока об отмене узнает сеть: кнопка «Стоп» должна срабатывать сразу
     if (signal?.aborted) throw new DOMException('Ответ остановлен', 'AbortError')
     if (chunk.error?.message) throw new Error(chunk.error.message)

@@ -1,9 +1,14 @@
 /**
  * `text/event-stream` → поток разобранных JSON-событий.
  * Чанки склеиваются: JSON может разорваться посередине.
- * Комментарии (`: OPENROUTER PROCESSING`) пропускаются, `data: [DONE]` завершает поток.
+ * Комментарии (`: OPENROUTER PROCESSING`) пропускаются, но через `onKeepalive`
+ * сообщают, что соединение живо — это единственный сигнал во время долгого TTFT.
+ * `data: [DONE]` завершает поток.
  */
-export async function* sseJson<T>(body: ReadableStream<Uint8Array>): AsyncGenerator<T> {
+export async function* sseJson<T>(
+  body: ReadableStream<Uint8Array>,
+  opts?: { onKeepalive?: () => void },
+): AsyncGenerator<T> {
   const reader = body.getReader()
   const decoder = new TextDecoder()
   let buffer = ''
@@ -16,7 +21,11 @@ export async function* sseJson<T>(body: ReadableStream<Uint8Array>): AsyncGenera
       while ((newline = buffer.indexOf('\n')) >= 0) {
         const line = buffer.slice(0, newline).trim()
         buffer = buffer.slice(newline + 1)
-        if (!line || line.startsWith(':')) continue
+        if (!line) continue
+        if (line.startsWith(':')) {
+          opts?.onKeepalive?.()
+          continue
+        }
         if (!line.startsWith('data:')) continue
         const payload = line.slice(5).trim()
         if (payload === '[DONE]') return

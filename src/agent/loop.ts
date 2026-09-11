@@ -16,6 +16,37 @@ export const messages = signal<Message[]>([])
 export const streaming = signal(false)
 export const chatError = signal<string | null>(null)
 
+export type AgentPhase = 'idle' | 'thinking' | 'writing' | 'tools' | 'analyzing'
+
+export interface AgentStatus {
+  phase: AgentPhase
+  /** Текущий круг агента (1-based), 0 — ещё не начали. */
+  round: number
+  total: number
+  /** Имя инструмента, который выполняется прямо сейчас. */
+  tool: string | null
+  /** Когда начался весь ход (для тикающего счётчика). */
+  startedAt: number
+  /** Последняя сетевая активность (чанк или keepalive) — признак «живо». */
+  heartbeat: number
+}
+
+export const agentStatus = signal<AgentStatus>({
+  phase: 'idle',
+  round: 0,
+  total: MAX_ITERATIONS,
+  tool: null,
+  startedAt: 0,
+  heartbeat: 0,
+})
+
+const patchStatus = (patch: Partial<AgentStatus>) => {
+  agentStatus.value = { ...agentStatus.value, ...patch }
+}
+const touchHeartbeat = () => {
+  agentStatus.value = { ...agentStatus.value, heartbeat: Date.now() }
+}
+
 let controller: AbortController | null = null
 
 export function stopStreaming() {
@@ -138,6 +169,15 @@ export async function sendMessage(text: string): Promise<void> {
   chatError.value = null
   controller = new AbortController()
   streaming.value = true
+  const startedAt = Date.now()
+  agentStatus.value = {
+    phase: 'thinking',
+    round: 0,
+    total: MAX_ITERATIONS,
+    tool: null,
+    startedAt,
+    heartbeat: startedAt,
+  }
 
   let lastSave = 0
   const save = async (force = false) => {
@@ -161,6 +201,7 @@ export async function sendMessage(text: string): Promise<void> {
       const last = round === MAX_ITERATIONS - 1
       const reply: Message = { role: 'assistant', content: '' }
       messages.value = [...messages.value, reply]
+      patchStatus({ phase: 'thinking', round: round + 1, tool: null, heartbeat: Date.now() })
 
       const calls: ToolCall[] = []
 
@@ -171,9 +212,12 @@ export async function sendMessage(text: string): Promise<void> {
         // на последнем круге инструменты убираем — модель обязана ответить словами
         tools: last ? undefined : toolSpecs(),
         signal: controller.signal,
+        onKeepalive: touchHeartbeat,
       })) {
         if (event.type === 'text') {
           reply.content += event.delta
+          if (agentStatus.value.phase === 'thinking') patchStatus({ phase: 'writing' })
+          touchHeartbeat()
           messages.value = [...messages.value]
           await save()
         } else if (event.type === 'tool_call') {
@@ -188,7 +232,11 @@ export async function sendMessage(text: string): Promise<void> {
       // finish_reason у некоторых моделей приходит 'stop' даже с вызовами — верим вызовам
       if (!calls.length) return
 
+      const heavy = calls.some((c) => c.name === 'analyze_games')
+      patchStatus({ phase: heavy ? 'analyzing' : 'tools', tool: calls[0]?.name ?? null })
+
       for (const call of calls) {
+        patchStatus({ tool: call.name })
         const startedAt = Date.now()
         const result = await runTool(call.name, call.args)
         messages.value = [
@@ -204,6 +252,7 @@ export async function sendMessage(text: string): Promise<void> {
   } finally {
     streaming.value = false
     controller = null
+    patchStatus({ phase: 'idle', tool: null })
     await save(true)
   }
 }
